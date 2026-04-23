@@ -7,7 +7,7 @@ export type PriceWacherState = WebsocketState<{
 }> 
 type PriceWatcherContextProps = {
   socket: React.RefObject<WebSocket | null>
-  state: PriceWacherState
+  isConnected: boolean
 } | null
 
 export const PriceWatcherContext = createContext<PriceWatcherContextProps>(null)

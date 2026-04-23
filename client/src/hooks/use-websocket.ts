@@ -77,12 +77,10 @@ export const useWebSocket = <T = string>({ url }: UseWebSocket) => {
     socketRef.current.onerror = (error: Event) => {
       dispatch({ type: "error", text: error.type })
     }
-    socketRef.current.onmessage = (event: MessageEvent<string>) => {
-      dispatch({ type: "message", message: JSON.parse(event.data) as T })
-    }
+
 
     return () => socketRef.current?.close()
   }, [url])
 
-  return { state, socketRef }
+  return { isConnected: state.connected, socketRef }
 }

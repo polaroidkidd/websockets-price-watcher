@@ -7,19 +7,27 @@ import { useEffect, useRef } from "react"
 import { AddPriceWatcherDialog } from "./components/add-price-watcher-dialog"
 
 export const PriceWatcherView = () => {
-  const state = usePriceWatcher()
+  const {isConnected, socket} = usePriceWatcher()
 
   const preRef = useRef<HTMLPreElement>(null)
 
-  useEffect(() => {
+
+  const update =(event: MessageEvent)=>{
     if (preRef.current) {
-      preRef.current.textContent = JSON.stringify(state.message, null, 2)
+      
+      preRef.current.textContent = event.data
     }
-  }, [state])
+    
+  }
+  useEffect(() => {
+    if (isConnected) {
+      socket.current?.addEventListener("message", update)
+    }
+  }, [isConnected, socket])
   return (
     <div className="placeholder">
       Price Watcher Dashboard View Placeholder
-      {state.connected ? <h1>Connected</h1> : <h1>NOT</h1>}
+      {isConnected ? <h1>Connected</h1> : <h1>NOT</h1>}
       <pre ref={preRef}></pre>
       <AddPriceWatcherDialog />
     </div>

@@ -10,7 +10,7 @@ export const PriceWatcherProvider = ({
   children,
   url,
 }: PriceWatcherProviderProps) => {
-  const { socketRef, state } = useWebSocket<{
+  const { socketRef, isConnected } = useWebSocket<{
     supportedSymbols: string[]
   }>({ url })
 
@@ -18,7 +18,7 @@ export const PriceWatcherProvider = ({
   return (
     <PriceWatcherContext
       value={{
-        state: state,
+        isConnected,
         socket: socketRef,
       }}
     >

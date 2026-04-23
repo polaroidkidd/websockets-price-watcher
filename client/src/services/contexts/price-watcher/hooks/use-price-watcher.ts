@@ -11,7 +11,7 @@ const usePriceWatcherContext = () => {
 }
 
 export const usePriceWatcher = () => {
-  const { state } = usePriceWatcherContext()
+  const { isConnected, socket } = usePriceWatcherContext()
 
-  return state
+  return {isConnected, socket}
 }
