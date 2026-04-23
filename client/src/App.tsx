@@ -1,27 +1,21 @@
-import "./App.css";
-import heroImg from "./assets/hero.png";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import { PriceWatcher } from "./components/price-watcher/price-watcher";
+import { Button } from "@/components/ui/button"
 
-import { WebSocketProvider } from "./services/websocket-service/websocket-service";
-
-function App() {
+export function App() {
   return (
-    <WebSocketProvider url="ws://0.0.0.0:8080">
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <div className="flex min-h-svh p-6">
+      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
         <div>
-          <h1>Web Socket Demo</h1>
-          <PriceWatcher />
+          <h1 className="font-medium">Project ready!</h1>
+          <p>You may now add components and start building.</p>
+          <p>We&apos;ve already added the button component for you.</p>
+          <Button className="mt-2">Button</Button>
         </div>
-      </section>
-    </WebSocketProvider>
-  );
+        <div className="font-mono text-xs text-muted-foreground">
+          (Press <kbd>d</kbd> to toggle dark mode)
+        </div>
+      </div>
+    </div>
+  )
 }
 
-export default App;
+export default App
