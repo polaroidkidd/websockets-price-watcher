@@ -1,17 +1,37 @@
-import { useContext } from "react"
-import { PriceWatcherContext } from "../context/price-watcher-context"
+import { useCallback, useContext, useSyncExternalStore } from "react"
+import {
+  PriceWatcherApiContext,
+  PriceWatcherStatusContext,
+  type Price,
+} from "../context/price-watcher-context"
 
-const usePriceWatcherContext = () => {
-  const ctx = useContext(PriceWatcherContext)
-
+export const usePriceWatcherApi = () => {
+  const ctx = useContext(PriceWatcherApiContext)
   if (!ctx) {
-    throw Error("PriceWatcherSocket Hook used outside of PriceWacherProvider")
+    throw Error("usePriceWatcherApi used outside of PriceWatcherProvider")
   }
   return ctx
 }
 
-export const usePriceWatcher = () => {
-  const { isConnected, socket } = usePriceWatcherContext()
-
-  return {isConnected, socket}
+export const usePriceWatcherStatus = () => {
+  const ctx = useContext(PriceWatcherStatusContext)
+  if (!ctx) {
+    throw Error("usePriceWatcherStatus used outside of PriceWatcherProvider")
+  }
+  return ctx
 }
+
+export const useWatchedSymbol = (symbol: string): Price | undefined => {
+  const { subscribe, getSnapshot } = usePriceWatcherApi()
+
+  const sub = useCallback(
+    (cb: () => void) => subscribe(symbol, cb),
+    [subscribe, symbol]
+  )
+  const snap = useCallback(() => getSnapshot(symbol), [getSnapshot, symbol])
+
+  return useSyncExternalStore(sub, snap, snap)
+}
+
+export const useAvailableSymbols = (): string[] =>
+  usePriceWatcherStatus().supportedSymbols

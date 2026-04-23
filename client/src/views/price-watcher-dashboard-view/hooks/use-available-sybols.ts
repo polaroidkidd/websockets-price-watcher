@@ -1,3 +1,1 @@
-export const useAvailableSymbols =()=>{
-    // get the available symbols from the websocket
-}
+export { useAvailableSymbols } from "@/services/contexts/price-watcher/hooks/use-price-watcher"

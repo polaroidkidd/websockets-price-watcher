@@ -1,13 +1,22 @@
-import type { WebsocketState } from "@/hooks/use-websocket"
 import { createContext } from "react"
 
+export type Price = number
 
-export type PriceWacherState = WebsocketState<{
-  supportedSymbols: string[]
-}> 
-type PriceWatcherContextProps = {
-  socket: React.RefObject<WebSocket | null>
+export type PriceWatcherApi = {
+  subscribe: (symbol: string, listener: () => void) => () => void
+  getSnapshot: (symbol: string) => Price | undefined
+  watch: (symbols: string[]) => void
+  unwatch: (symbols: string[]) => void
+}
+
+export type PriceWatcherStatus = {
   isConnected: boolean
-} | null
+  supportedSymbols: string[]
+}
 
-export const PriceWatcherContext = createContext<PriceWatcherContextProps>(null)
+export const PriceWatcherApiContext = createContext<PriceWatcherApi | null>(
+  null
+)
+
+export const PriceWatcherStatusContext =
+  createContext<PriceWatcherStatus | null>(null)

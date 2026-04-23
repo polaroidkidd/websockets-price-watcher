@@ -1,86 +1,74 @@
-import { useEffect, useReducer, useRef } from "react"
+import { useCallback, useEffect, useReducer, useRef } from "react"
 
 type UseWebSocket = {
   url: string
+  onMessage?: (data: string) => void
 }
 
-export type WebsocketState<T = string> = {
+export type WebsocketState = {
   connected: boolean
   error: string | undefined
-  message: T | undefined
 }
 
-const DefaultState = {
+const DefaultState: WebsocketState = {
   connected: false,
   error: undefined,
-  message: undefined,
 }
-type Action<T = string> =
-  | {
-      type: "connect"
-    }
-  | {
-      type: "close"
-    }
-  | {
-      type: "error"
-      text: string
-    }
-  | {
-      type: "message"
-      message: T
-    }
-const reducer = <T>(
-  state: WebsocketState<T>,
-  action: Action<T>
-): WebsocketState<T> => {
-  switch (action.type) {
-    case "connect": {
-      return { ...state, connected: true }
-    }
-    case "close": {
-      return { ...state, connected: false }
-    }
-    case "error": {
-      return { ...state, connected: false, error: action.text }
-    }
-    case "message": {
-      return { ...state, message: action.message }
-    }
 
-    default: {
+type Action =
+  | { type: "connect" }
+  | { type: "close" }
+  | { type: "error"; text: string }
+
+const reducer = (state: WebsocketState, action: Action): WebsocketState => {
+  switch (action.type) {
+    case "connect":
+      return { ...state, connected: true }
+    case "close":
+      return { ...state, connected: false }
+    case "error":
+      return { ...state, connected: false, error: action.text }
+    default:
       return state
-    }
   }
 }
 
-export const useWebSocket = <T = string>({ url }: UseWebSocket) => {
-  const socketRef = useRef<WebSocket>(null)
-  const [state, dispatch] = useReducer(
-    reducer<T>,
-    DefaultState as WebsocketState<T>
-  )
+export const useWebSocket = ({ url, onMessage }: UseWebSocket) => {
+  const socketRef = useRef<WebSocket | null>(null)
+  const onMessageRef = useRef(onMessage)
+  onMessageRef.current = onMessage
+
+  const [state, dispatch] = useReducer(reducer, DefaultState)
+
   useEffect(() => {
-    socketRef.current = new WebSocket(url)
-    
-    socketRef.current.close = () => {
-      dispatch({ type: "close" })
-    }
-    socketRef.current.onopen = () => {
-      dispatch({ type: "connect" })
-      socketRef.current?.send(JSON.stringify({
-      event: "subscribe",
-      stocks: ["WF", "DVU"],
-    }))
-    }
+    const ws = new WebSocket(url)
+    socketRef.current = ws
 
-    socketRef.current.onerror = (error: Event) => {
-      dispatch({ type: "error", text: error.type })
+    ws.onopen = () => dispatch({ type: "connect" })
+    ws.onclose = () => dispatch({ type: "close" })
+    ws.onerror = (event: Event) => dispatch({ type: "error", text: event.type })
+    ws.onmessage = (event: MessageEvent) => onMessageRef.current?.(event.data)
+
+    return () => {
+      ws.onopen = null
+      ws.onclose = null
+      ws.onerror = null
+      ws.onmessage = null
+      ws.close()
+      socketRef.current = null
     }
-
-
-    return () => socketRef.current?.close()
   }, [url])
 
-  return { isConnected: state.connected, socketRef }
+  const send = useCallback((payload: unknown) => {
+    const ws = socketRef.current
+    if (ws?.readyState === WebSocket.OPEN) {
+      ws.send(typeof payload === "string" ? payload : JSON.stringify(payload))
+    }
+  }, [])
+
+  return {
+    isConnected: state.connected,
+    error: state.error,
+    send,
+  }
 }
