@@ -4,6 +4,7 @@
   "description": "This is a demo server that serves example stocks data over WebSocket.",
   "main": "server.js",
   "scripts": {
+    "dev": "node ./server.js",
     "generate-stocks-data": "node generateStocks.js"
   },
   "author": "LOSTMOA LIMITED",
