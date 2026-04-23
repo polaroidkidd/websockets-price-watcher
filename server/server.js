@@ -122,7 +122,7 @@ wss.on('connection', (ws) => {
 			ws.send(getStocksUpdateEvent(connectionInfo))
 			connectionInfo.stocksUpdateCount += 1
 		}
-	}, 30)
+	}, 50)
 
 	ws.connectionTimeout = setTimeout(() => {
 		disconnect(ws, "connection time exceeds 5 minutes")
